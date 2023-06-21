@@ -28,22 +28,22 @@ storage failure in Cassandra
 """
 cat > mr_permacache <<HERE
 #!/bin/sh
-cd ~/reddit/r2
-paster run staging.ini ./mr_permacache.py -c "\$1"
+cd ~/src/reddit/r2
+paster run development.ini r2/lib/migrate/mr_permacache.py -c "\$1"
 HERE
 chmod u+x mr_permacache
 
-LINKDBHOST=prec01
-COMMENTDBHOST=db02s1
-VOTEDBHOST=db03s1
-SAVEHIDEDBHOST=db01s1
+LINKDBHOST=localhost
+COMMENTDBHOST=localhost
+VOTEDBHOST=localhost
+SAVEHIDEDBHOST=localhost
 
 ## links
-time psql -F"\t" -A -t -d newreddit -U ri -h $LINKDBHOST \
+time psql -F"\t" -A -t -d reddit -U reddit -h $LINKDBHOST \
      -c "\\copy (select t.thing_id, 'thing', 'link',
                         t.ups, t.downs, t.deleted, t.spam, extract(epoch from t.date)
                    from reddit_thing_link t) to 'reddit_thing_link.dump'"
-time psql -F"\t" -A -t -d newreddit -U ri -h $LINKDBHOST \
+time psql -F"\t" -A -t -d reddit -U reddit -h $LINKDBHOST \
      -c "\\copy (select d.thing_id, 'data', 'link',
                         d.key, d.value
                    from reddit_data_link d
@@ -52,11 +52,11 @@ pv reddit_data_link.dump reddit_thing_link.dump | sort -T. -S200m | ./mr_permaca
 pv links.joined | ./mr_permacache "link_listings()" | sort -T. -S200m > links.listings
 
 ## comments
-psql -F"\t" -A -t -d newreddit -U ri -h $COMMENTDBHOST \
+psql -F"\t" -A -t -d reddit -U reddit -h $COMMENTDBHOST \
      -c "\\copy (select t.thing_id, 'thing', 'comment',
                         t.ups, t.downs, t.deleted, t.spam, extract(epoch from t.date)
                    from reddit_thing_comment t) to 'reddit_thing_comment.dump'"
-psql -F"\t" -A -t -d newreddit -U ri -h $COMMENTDBHOST \
+psql -F"\t" -A -t -d reddit -U reddit -h $COMMENTDBHOST \
      -c "\\copy (select d.thing_id, 'data', 'comment',
                         d.key, d.value
                    from reddit_data_comment d

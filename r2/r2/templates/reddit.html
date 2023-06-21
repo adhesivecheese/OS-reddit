@@ -20,7 +20,7 @@
 ## reddit Inc. All Rights Reserved.
 ###############################################################################
 
-<%! 
+<%!
    from r2.config import feature
    from r2.lib.template_helpers import add_sr, static, join_urls, class_dict, get_domain
    from r2.lib.filters import unsafe, scriptsafe_dumps
@@ -177,7 +177,7 @@
   %if not c.user_is_loggedin and not g.read_only_mode:
     %if thing.enable_login_cover:
       <script>
-        var BETA_HOST = 'beta.reddit.com';
+        var BETA_HOST = 'beta.${g.domain}';
         if (location.host === BETA_HOST) {
           r.config.https_endpoint = 'https://' + BETA_HOST;
         }

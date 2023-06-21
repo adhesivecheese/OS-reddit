@@ -137,7 +137,8 @@ class ProfilingMiddleware(object):
         import cProfile
 
         try:
-            tmpfile = tempfile.NamedTemporaryFile(prefix='profile',
+            prefix = 'profile' + environ['FULLPATH'].replace('/', '-') + '-'
+            tmpfile = tempfile.NamedTemporaryFile(prefix=prefix,
                                                   dir=self.directory,
                                                   delete=False)
 
@@ -229,10 +230,10 @@ class DomainMiddleware(object):
 
 
 class SubredditMiddleware(object):
-    sr_pattern = re.compile(r'^/r/([^/]{2,})')
-
-    def __init__(self, app):
+    def __init__(self, app, config):
         self.app = app
+        self.config = config
+        self.sr_pattern = re.compile(r'^/' + self.config['pylons.app_globals'].brander_community_abbr + '/([^/]{2,})')
 
     def __call__(self, environ, start_response):
         path = environ['PATH_INFO']
@@ -522,7 +523,7 @@ def make_app(global_conf, full_stack=True, **app_conf):
         app = ProfilingMiddleware(app, profile_directory)
 
     app = DomainListingMiddleware(app)
-    app = SubredditMiddleware(app)
+    app = SubredditMiddleware(app, config=config)
     app = ExtensionMiddleware(app)
     app = DomainMiddleware(app, config=config)
 

@@ -42,6 +42,7 @@ from pylons.i18n import N_
 
 from r2.lib.contrib import rcssmin
 from r2.lib.utils import tup
+from pylons import app_globals as g
 
 
 __all__ = ["validate_css"]
@@ -142,6 +143,16 @@ SAFE_PROPERTIES = {
     "clip",
     "clip-path",
     "color",
+    "column-count",
+    "column-fill",
+    "column-gap",
+    "column-rule",
+    "column-rule-color",
+    "column-rule-style",
+    "column-rule-width",
+    "column-span",
+    "column-width",
+    "columns",
     "content",
     "counter-increment",
     "counter-reset",
@@ -153,10 +164,7 @@ SAFE_PROPERTIES = {
     "display",
     "elevation",
     "empty-cells",
-    # the "filter" property cannot be safely added while IE9 is allowed to
-    # use subreddit stylesheets. see explanation here:
-    # https://github.com/reddit/reddit/pull/1058#issuecomment-76466180
-    # "filter",
+    "filter",
     "flex",
     "flex-align",
     "flex-basis",
@@ -173,6 +181,8 @@ SAFE_PROPERTIES = {
     "font",
     "font-family",
     "font-size",
+    "font-size-adjust",
+    "font-stretch",
     "font-style",
     "font-variant",
     "font-weight",
@@ -183,9 +193,12 @@ SAFE_PROPERTIES = {
     "grid-auto-position",
     "grid-auto-rows",
     "grid-column",
+    "grid-column-gap",
     "grid-column-start",
     "grid-column-end",
+    "grid-gap",
     "grid-row",
+    "grid-row-gap",
     "grid-row-start",
     "grid-row-end",
     "grid-template",
@@ -198,7 +211,10 @@ SAFE_PROPERTIES = {
     "image-orientation",
     "image-rendering",
     "image-resolution",
+    "isolation",
     "justify-content",
+    "justify-items",
+    "justify-self",
     "left",
     "letter-spacing",
     "line-break",
@@ -233,6 +249,8 @@ SAFE_PROPERTIES = {
     "min-height",
     "min-width",
     "mix-blend-mode",
+    "object-fit",
+    "object-position",
     "opacity",
     "order",
     "orphans",
@@ -267,6 +285,31 @@ SAFE_PROPERTIES = {
     "resize",
     "richness",
     "right",
+    "scroll-snap-type",
+    "scroll-snap-stop",
+    "scroll-padding",
+    "scroll-padding-top",
+    "scroll-padding-right",
+    "scroll-padding-bottom",
+    "scroll-padding-left",
+    "scroll-padding-inline",
+    "scroll-padding-inline-start",
+    "scroll-padding-inline-end",
+    "scroll-padding-block",
+    "scroll-padding-block-start",
+    "scroll-padding-block-end",
+    "scroll-snap-align",
+    "scroll-margin",
+    "scroll-margin-top",
+    "scroll-margin-right",
+    "scroll-margin-bottom",
+    "scroll-margin-left",
+    "scroll-margin-inline",
+    "scroll-margin-inline-start",
+    "scroll-margin-inline-end",
+    "scroll-margin-block",
+    "scroll-margin-block-start",
+    "scroll-margin-block-end",
     "speak",
     "speak-header",
     "speak-numeral",
@@ -284,6 +327,7 @@ SAFE_PROPERTIES = {
     "text-decoration-style",
     "text-indent",
     "text-justify",
+    "text-orientation",
     "text-overflow",
     "text-rendering",
     "text-shadow",
@@ -312,6 +356,8 @@ SAFE_PROPERTIES = {
     "will-change",
     "word-break",
     "word-spacing",
+    "word-wrap",
+    "writing-mode",
     "z-index",
 }
 assert all(property == property.lower() for property in SAFE_PROPERTIES)
@@ -319,29 +365,40 @@ assert all(property == property.lower() for property in SAFE_PROPERTIES)
 
 SAFE_FUNCTIONS = {
     "attr",
+    "blur",
+    "brightness",
     "calc",
     "circle",
+    "drop-shadow",
+    "contrast",
     "counter",
     "counters",
     "cubic-bezier",
     "ellipse",
+    "fit-content",
+    "grayscale",
     "hsl",
     "hsla",
+    "hue-rotate",
+    "invert",
     "lang",
     "line",
     "linear-gradient",
     "matrix",
     "matrix3d",
+    "minmax",
     "not",
     "nth-child",
     "nth-last-child",
     "nth-last-of-type",
     "nth-of-type",
+    "opacity",
     "perspective",
     "polygon",
     "polyline",
     "radial-gradient",
     "rect",
+    "repeat",
     "repeating-linear-gradient",
     "repeating-radial-gradient",
     "rgb",
@@ -351,11 +408,13 @@ SAFE_FUNCTIONS = {
     "rotatex",
     "rotatey",
     "rotatez",
+    "saturate",
     "scale",
     "scale3d",
     "scalex",
     "scaley",
     "scalez",
+    "sepia",
     "skewx",
     "skewy",
     "steps",
@@ -383,7 +442,7 @@ ERROR_MESSAGES = {
 }
 
 
-MAX_SIZE_KIB = 100
+MAX_SIZE_KIB = g.wiki_max_config_stylesheet_length_bytes / 1024
 SUBREDDIT_IMAGE_URL_PLACEHOLDER = re.compile(r"\A%%([a-zA-Z0-9\-]+)%%\Z")
 
 
@@ -482,7 +541,7 @@ class StylesheetValidator(object):
 
         keyword = strip_vendor_prefix(rule.lower_at_keyword)
 
-        if keyword in ("media", "keyframes"):
+        if keyword in ("media", "keyframes", "supports"):
             rules = tinycss2.parse_rule_list(rule.content)
             rule_errors = self.validate_rule_list(rules)
         elif keyword == "page":

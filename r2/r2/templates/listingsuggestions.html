@@ -36,7 +36,7 @@
 %elif thing.suggestion_type == 'random':
   ${text_with_links(
     _('or try a %(random_subreddit)s'),
-    random_subreddit=dict(link_text=_("random subreddit"), path="/r/random")
+    random_subreddit=dict(link_text=_("random sub"), path="/" + g.brander_community_abbr + "/random")
   )}
 %endif
 </span>

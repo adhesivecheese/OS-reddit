@@ -134,6 +134,9 @@ def _apply_exif_orientation(image):
     except AttributeError:
         # image format with no EXIF tags
         return image
+    except SyntaxError:
+        # image with corrupt EXIF data? https://github.com/python-pillow/Pillow/issues/2043
+        return image
 
     # constant from EXIF spec
     ORIENTATION_TAG_ID = 0x0112
@@ -213,46 +216,64 @@ def _initialize_request(url, referer, gzip=False):
 
 
 def _fetch_url(url, referer=None):
-    request = _initialize_request(url, referer=referer, gzip=True)
-    if not request:
+    if g.disable_remote_fetch:
         return None, None
-    response = urllib2.urlopen(request)
-    response_data = response.read()
-    content_encoding = response.info().get("Content-Encoding")
-    if content_encoding and content_encoding.lower() in ["gzip", "x-gzip"]:
-        buf = cStringIO.StringIO(response_data)
-        f = gzip.GzipFile(fileobj=buf)
-        response_data = f.read()
-    return response.headers.get("Content-Type"), response_data
 
+    url = _clean_url(url)
+    if not url.startswith(("http://", "https://")):
+        return None, None
+
+    proxies = None
+    if g.remote_fetch_proxy_enabled:
+        proxies = {"http": g.remote_fetch_proxy_url, "https": g.remote_fetch_proxy_url}
+
+    try:
+        r = requests.get(url, headers={'Accept-Encoding': 'gzip', 'User-Agent': g.useragent, 'Referer': referer}, proxies=proxies, timeout=15)
+        return r.headers['Content-Type'], r.content
+    except:
+        return None, None
+
+def _fetch_url_requests(url, params=None):
+    proxies = None
+    if g.remote_fetch_proxy_enabled:
+        proxies = {"http": g.remote_fetch_proxy_url, "https": g.remote_fetch_proxy_url}
+
+    return requests.get(url, params=params, headers={'Accept-Encoding': 'gzip', 'User-Agent': g.useragent}, proxies=proxies, timeout=15)
 
 @memoize('media.fetch_size', time=3600)
 def _fetch_image_size(url, referer):
     """Return the size of an image by URL downloading as little as possible."""
+    if g.disable_remote_fetch:
+        return None, None
 
-    request = _initialize_request(url, referer)
-    if not request:
-        return None
+    url = _clean_url(url)
+    if not url.startswith(("http://", "https://")):
+        return None, None
+
+    proxies = None
+    if g.remote_fetch_proxy_enabled:
+        proxies = {"http": g.remote_fetch_proxy_url, "https": g.remote_fetch_proxy_url}
 
     parser = ImageFile.Parser()
-    response = None
     try:
-        response = urllib2.urlopen(request)
 
-        while True:
-            chunk = response.read(1024)
-            if not chunk:
-                break
-
+        # timeout is connection timeout only
+        r = requests.get(url, headers={'Accept-Encoding': 'gzip', 'User-Agent': g.useragent, 'Referer': referer}, proxies=proxies, timeout=5, stream=True)
+        content = ''
+        for chunk in r.iter_content(1024, decode_unicode=False):
             parser.feed(chunk)
             if parser.image:
+                r.close()
                 return parser.image.size
-    except urllib2.URLError:
-        return None
-    finally:
-        if response:
-            response.close()
 
+    except Exception as e:
+        if g.debug:
+            if hasattr(e, 'message') and len(e.message):
+                g.log.error("_fetch_image_size() exception: %s" % e.message)
+            else:
+                g.log.error("_fetch_image_size() exception: %s" % e)
+    finally:
+        r.close()
 
 def optimize_jpeg(filename):
     with open(os.path.devnull, 'w') as devnull:
@@ -634,6 +655,8 @@ class MediaEmbed(object):
 class Scraper(object):
     @classmethod
     def for_url(cls, url, autoplay=False, maxwidth=600, use_youtube_scraper=False):
+        if g.disable_remote_fetch:
+            return _ThumbnailOnlyScraper(url)
         scraper = hooks.get_hook("scraper.factory").call_until_return(url=url)
         if scraper:
             return scraper
@@ -803,7 +826,7 @@ class _EmbedlyScraper(Scraper):
 
         timer = g.stats.get_timer("providers.embedly.oembed")
         timer.start()
-        content = requests.get(self.EMBEDLY_API_URL + "?" + params).content
+        content = _fetch_url_requests(self.EMBEDLY_API_URL, params).content
         timer.stop()
 
         return json.loads(content)
@@ -908,7 +931,7 @@ class _YouTubeScraper(Scraper):
         }
 
         with g.stats.get_timer("providers.youtube.oembed"):
-            content = requests.get(self.OEMBED_ENDPOINT, params=params).content
+            content = _fetch_url_requests(self.OEMBED_ENDPOINT, params=params).content
 
         return json.loads(content)
 
@@ -973,7 +996,7 @@ class _YouTubeScraper(Scraper):
 
 @memoize("media.embedly_services2", time=3600)
 def _fetch_embedly_service_data():
-    resp = requests.get("https://api.embed.ly/1/services/python")
+    resp = _fetch_url_requests("https://api.embed.ly/1/services/python")
     return get_requests_resp_json(resp)
 
 

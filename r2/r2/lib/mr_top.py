@@ -34,6 +34,7 @@ from r2.lib import mr_tools
 from r2.lib.utils import timeago, UrlParser
 from r2.lib.jsontemplates import make_fullname # what a strange place
                                                # for this function
+from pylons import app_globals as g
 
 thingcls_by_name = {
     "link": Link,
@@ -141,7 +142,7 @@ def store_keys(key, maxes):
     query._replace(item_tuples, lock=lock)
 
 def write_permacache(fd = sys.stdin):
-    mr_tools.mr_reduce_max_per_key(lambda x: map(float, x[:-1]), num=1000,
+    mr_tools.mr_reduce_max_per_key(lambda x: map(float, x[:-1]), num=g.precompute_limit,
                                    post=store_keys,
                                    fd = fd)
 
@@ -149,5 +150,5 @@ def reduce_listings(fd=sys.stdin):
     # like write_permacache, but just sends the reduced version of the listing
     # to stdout instead of to the permacache. It's handy for debugging to see
     # the final result before it's written out
-    mr_tools.mr_reduce_max_per_key(lambda x: map(float, x[:-1]), num=1000,
+    mr_tools.mr_reduce_max_per_key(lambda x: map(float, x[:-1]), num=g.precompute_limit,
                                    fd = fd)

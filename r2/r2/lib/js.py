@@ -50,7 +50,7 @@ inline_script_tag = '<script type="text/javascript">{content}</script>'
 class Uglify(object):
     def compile(self, data, dest):
         process = subprocess.Popen(
-            ["/usr/bin/uglifyjs", "-nc"],
+            ["/usr/bin/uglifyjs", "-c"],
             stdin=subprocess.PIPE,
             stdout=dest,
         )

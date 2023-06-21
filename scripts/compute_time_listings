@@ -42,6 +42,9 @@ export INTERVAL="$2"
 # formatted as python tuple of strings: e.g. '("hour",)' or ("week", "all",) etc
 export TIMES="$3"
 
+# Single server optimization
+#WRITE_PERMACACHE_NPROC=1
+
 echo "Starting $THING_CLS processing"
 
 # enable reporting to sentry
@@ -49,8 +52,10 @@ export REDDIT_ERRORS_TO_SENTRY=1
 
 THING_DUMP=$TMPDIR/$THING_CLS-$INTERVAL-thing.dump
 DATA_DUMP=$TMPDIR/$THING_CLS-$INTERVAL-data.dump
+JOIN_DUMP=$TMPDIR/$THING_CLS-$INTERVAL-join.dump
+TIME_DUMP=$TMPDIR/$THING_CLS-$INTERVAL-time.dump
 function clean_up {
-    rm -f $THING_DUMP $DATA_DUMP
+    rm -f $THING_DUMP $DATA_DUMP $JOIN_DUMP $TIME_DUMP
 }
 
 if [ -e $THING_DUMP ]; then
@@ -138,6 +143,6 @@ cat $THING_DUMP $DATA_DUMP |
     reddit "join_things('$THING_CLS')" |
     reddit "time_listings($TIMES, '$THING_CLS')" |
     mrsort |
-    reddit -j4 "write_permacache()"
+    reddit -j$WRITE_PERMACACHE_NPROC "write_permacache()"
 
 echo 'Done.'

@@ -284,7 +284,7 @@ valid_ascii_domain = re.compile(r'\A(\w[-\w]*\.)+[\w]+\Z')
 def set_subreddit():
     #the r parameter gets added by javascript for API requests so we
     #can reference c.site in api.py
-    sr_name = request.environ.get("subreddit", request.params.get('r'))
+    sr_name = request.environ.get("subreddit", request.params.get(g.brander_community_abbr))
     domain = request.environ.get("domain")
 
     can_stale = request.method.upper() in ('GET', 'HEAD')
@@ -317,7 +317,7 @@ def set_subreddit():
                 found = {sr.name.lower() for sr in srs}
                 sr_names = filter(lambda name: name.lower() in found, sr_names)
                 sr_name = '+'.join(sr_names)
-                multi_path = '/r/' + sr_name
+                multi_path = '/' + g.brander_community_abbr + '/' + sr_name
                 c.site = MultiReddit(multi_path, srs)
             elif not c.error_page:
                 abort(404)
@@ -467,14 +467,14 @@ def set_content_type():
             if user and not g.read_only_mode:
                 c.user = user
                 c.user_is_loggedin = True
-        if ext in ("mobile", "m") and not request.GET.get("keep_extension"):
+        if ext in ("mobile") and not request.GET.get("keep_extension"):
             try:
                 if request.cookies['reddit_mobility'] == "compact":
                     c.extension = "compact"
                     c.render_style = "compact"
             except (ValueError, KeyError):
                 c.suggest_compact = True
-        if ext in ("mobile", "m", "compact"):
+        if ext in ("mobile", "compact"):
             if request.GET.get("keep_extension"):
                 c.cookies['reddit_mobility'] = Cookie(ext, expires=NEVER)
 

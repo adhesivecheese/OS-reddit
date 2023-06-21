@@ -78,7 +78,7 @@ from r2.models.query_cache import (
 from r2.models.vote import Vote
 
 
-precompute_limit = 1000
+precompute_limit = g.precompute_limit
 
 db_sorts = dict(hot = (desc, '_hot'),
                 new = (desc, '_date'),

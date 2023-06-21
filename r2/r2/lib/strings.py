@@ -78,7 +78,7 @@ string_dict = dict(
 
     legal = _("I understand and agree that registration on or use of this site constitutes agreement to its %(user_agreement)s and %(privacy_policy)s."),
 
-    friends = _('to view reddit with only submissions from your friends, use [reddit.com/r/friends](%s)'),
+    friends = _('to view site with only submissions from your friends, use [/r/friends](%s)'),
 
     sr_created = _('your subreddit has been created'),
 
@@ -91,7 +91,7 @@ string_dict = dict(
         moderator = _('below are the subreddits that you have moderator access to.')
         ),
 
-    sr_subscribe =  _('click the `subscribe` or `unsubscribe` buttons to choose which subreddits appear on your front page.'),
+    sr_subscribe =  _('click \'subscribe\' and \'unsubscribe\' to choose which %(community_plural)s appear on your [%(subscribed_name)s](%(subscribed_link)s) page. you can [reset your subscriptions](%(unsubscribe_link)s) in your [preferences](%(prefs_link)s).'),
 
     searching_a_reddit = _('you\'re searching within the [%(reddit_name)s](%(reddit_link)s) subreddit. '+
                            'you can also search within [all subreddits](%(all_reddits_link)s)'),

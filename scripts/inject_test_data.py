@@ -142,7 +142,7 @@ def fetch_listing(path, limit=1000, batch_size=100):
             break
 
         # obey reddit.com's ratelimits
-        # see: https://github.com/reddit/reddit/wiki/API#rules
+        # see: https://github.com/reddit-archive/reddit/wiki/API#rules
         time.sleep(2)
 
 
@@ -358,3 +358,19 @@ def inject_test_data(num_links=25, num_comments=25, num_votes=5):
     srs = [Subreddit._by_name(n) for n in ("pics", "videos", "askhistorians")]
     LocalizedDefaultSubreddits.set_global_srs(srs)
     LocalizedFeaturedSubreddits.set_global_srs([Subreddit._by_name('pics')])
+
+def inject_configuration_data():
+    """Create required users and subreddits such that user registration works without exception out of the box"""
+    print ">>>> Ensuring configured objects exist"
+    system_user = ensure_account(g.system_user)
+    ensure_account(g.automoderator_account)
+    ensure_subreddit(g.default_sr, system_user)
+    ensure_subreddit(g.takedown_sr, system_user)
+    ensure_subreddit(g.beta_sr, system_user)
+    ensure_subreddit(g.promo_sr_name, system_user)
+    print
+    print
+    print ">>>> Setting default and featured subreddits"
+    srs = [Subreddit._by_name(n) for n in (g.default_sr, )]
+    LocalizedDefaultSubreddits.set_global_srs(srs)
+    LocalizedFeaturedSubreddits.set_global_srs([Subreddit._by_name(g.default_sr)])
