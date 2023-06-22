@@ -185,7 +185,7 @@ fi
 function install_reddit_repo {
     pushd $REDDIT_SRC/$1
     sudo -u $REDDIT_USER python setup.py build
-    python setup.py develop --no-deps
+    python setup.py develop
     popd
 }
 
