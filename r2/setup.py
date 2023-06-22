@@ -89,7 +89,6 @@ setup(
         "python-snappy",
         "httpagentparser==1.7.8",
         "raven",
-        "ndg-httpsclient",
         "pycryptodome",
     ],
     # setup tests (allowing for "python setup.py test")

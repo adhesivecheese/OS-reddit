@@ -1104,7 +1104,7 @@ class VVerifiedUser(VUser):
             raise VerifiedUserRequiredException
 
 class VGold(VUser):
-    notes = "*Requires a subscription to [" + g.brander_site + " gold](/gold/about)*"
+    notes = "*Requires a subscription to [gold](/gold/about)*"
     def run(self):
         VUser.run(self)
         if not c.user.gold:

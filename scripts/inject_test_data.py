@@ -112,7 +112,7 @@ class TextGenerator(object):
 
 
 def fetch_listing(path, limit=1000, batch_size=100):
-    """Fetch a reddit listing from reddit.com."""
+    """Fetch a listing from reddit.com."""
 
     session = requests.Session()
     session.headers.update({
@@ -361,6 +361,7 @@ def inject_test_data(num_links=25, num_comments=25, num_votes=5):
 
 def inject_configuration_data():
     """Create required users and subreddits such that user registration works without exception out of the box"""
+
     print ">>>> Ensuring configured objects exist"
     system_user = ensure_account(g.system_user)
     ensure_account(g.automoderator_account)
@@ -368,8 +369,10 @@ def inject_configuration_data():
     ensure_subreddit(g.takedown_sr, system_user)
     ensure_subreddit(g.beta_sr, system_user)
     ensure_subreddit(g.promo_sr_name, system_user)
+
     print
     print
+
     print ">>>> Setting default and featured subreddits"
     srs = [Subreddit._by_name(n) for n in (g.default_sr, )]
     LocalizedDefaultSubreddits.set_global_srs(srs)

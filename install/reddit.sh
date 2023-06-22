@@ -185,7 +185,7 @@ fi
 function install_reddit_repo {
     pushd $REDDIT_SRC/$1
     sudo -u $REDDIT_USER python setup.py build
-    python setup.py develop
+    python setup.py develop --no-deps
     popd
 }
 
@@ -418,6 +418,7 @@ CONFIG = {
 }
 CLICK
 fi
+
 service gunicorn start
 
 ###############################################################################
@@ -734,7 +735,7 @@ set_consumer_count commentstree_q 1
 set_consumer_count newcomments_q 1
 set_consumer_count vote_link_q 1
 set_consumer_count vote_comment_q 1
-set_consumer_count automoderator_q 1
+set_consumer_count automoderator_q 0 #Maybe set to 1?
 set_consumer_count butler_q 1
 set_consumer_count author_query_q 1
 set_consumer_count subreddit_query_q 1
@@ -819,3 +820,4 @@ fi
 # print this out here. if vagrant's involved, it's gonna do more steps
 # afterwards and then re-run this script but that's ok.
 $RUNDIR/done.sh
+

@@ -76,9 +76,9 @@ def make_map(config):
     mc('/about/team', controller='redirect', action='redirect',
        dest=ABOUT_BASE)
     mc('/about/alien', controller='redirect', action='redirect',
-       dest=ABOUT_BASE)
+       dest=ABOUT_BASE + "press")
     mc('/jobs', controller='redirect', action='redirect',
-       dest=ABOUT_BASE)
+       dest=ABOUT_BASE + "careers")
 
     mc('/over18', controller='post', action='over18')
     mc('/quarantine', controller='post', action='quarantine')
@@ -428,10 +428,10 @@ def make_map(config):
     mc("/api/multi/user/:username", controller="multiapi", action="list_multis")
     mc("/api/multi/copy", controller="multiapi", action="multi_copy")
     mc("/api/multi/rename", controller="multiapi", action="multi_rename")
-    mc("/api/multi/*multipath/r/:srname", controller="multiapi", action="multi_subreddit")
+    mc("/api/multi/*multipath/" + config['pylons.app_globals'].brander_community_abbr + "/:srname", controller="multiapi", action="multi_subreddit")
     mc("/api/multi/*multipath/description", controller="multiapi", action="multi_description")
     mc("/api/multi/*multipath", controller="multiapi", action="multi")
-    mc("/api/filter/*multipath/r/:srname", controller="multiapi", action="multi_subreddit")
+    mc("/api/filter/*multipath/" + config['pylons.app_globals'].brander_community_abbr + "/:srname", controller="multiapi", action="multi_subreddit")
     mc("/api/filter/*multipath", controller="multiapi", action="multi")
 
     mc("/api/v1/:action", controller="oauth2frontend",

@@ -219,7 +219,8 @@ class DomainMiddleware(object):
             if not subdomains and g.domain_prefix:
                 subdomains.append(g.domain_prefix)
             subdomains.append(g.domain)
-            redir = "%s/r/%s/%s" % ('.'.join(subdomains),
+            redir = "%s/%s/%s/%s" % ('.'.join(subdomains),
+                                    g.brander_community_abbr,
                                     sr_redirect, environ['FULLPATH'])
             redir = g.default_scheme + "://" + redir.replace('//', '/')
 

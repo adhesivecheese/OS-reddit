@@ -58,7 +58,9 @@ fi
 ###############################################################################
 # check each port for connectivity
 echo "Waiting for services to be available, see source for port meanings..."
-# 11211 - memcache, 5432 - postgres, 5672 - rabbitmq
+# 11211 - memcache
+# 5432 - postgres
+# 5672 - rabbitmq
 if [ "$INSTALL_PROFILE" = "all" ]; then
     for port in 11211 5432 5672; do
         while ! nc -vz localhost $port; do

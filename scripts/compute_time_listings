@@ -43,7 +43,8 @@ export INTERVAL="$2"
 export TIMES="$3"
 
 # Single server optimization
-#WRITE_PERMACACHE_NPROC=1
+# WRITE_PERMACACHE_NPROC=4
+WRITE_PERMACACHE_NPROC=1
 
 echo "Starting $THING_CLS processing"
 
