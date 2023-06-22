@@ -90,6 +90,7 @@ setup(
         "httpagentparser==1.7.8",
         "raven",
         "pycryptodome",
+        "ndg-httpsclient",
     ],
     # setup tests (allowing for "python setup.py test")
     tests_require=['mock', 'nose', 'coverage'],
