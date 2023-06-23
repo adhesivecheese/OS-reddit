@@ -31,8 +31,8 @@ from r2.lib.db.queries import _get_links, CachedResults
 from r2.lib.db.sorts import epoch_seconds
 
 
-MAX_PER_SUBREDDIT = g.hot_max_links_per_subreddit
-MAX_LINKS = g.precompute_limit_hot
+MAX_PER_SUBREDDIT = 150
+MAX_LINKS = 1000
 
 
 def get_hot_tuples(sr_ids, ageweight=None):
@@ -76,7 +76,7 @@ def get_hot_factor(qdata, now, ageweight):
     """
     ageweight = float(ageweight or 0.0)
     link_name, hot, timestamp = qdata
-    return max(hot + ((now - timestamp) * ageweight) / g.hot_period_seconds, 1.0)
+    return max(hot + ((now - timestamp) * ageweight) / 45000.0, 1.0)
 
 
 def normalized_hot(sr_ids, obey_age_limit=True, ageweight=None):

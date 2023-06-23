@@ -216,13 +216,9 @@ def _initialize_request(url, referer, gzip=False):
 
 
 def _fetch_url(url, referer=None):
-    if g.disable_remote_fetch:
-        return None, None
-
     url = _clean_url(url)
     if not url.startswith(("http://", "https://")):
         return None, None
-
     proxies = None
     if g.remote_fetch_proxy_enabled:
         proxies = {"http": g.remote_fetch_proxy_url, "https": g.remote_fetch_proxy_url}
@@ -233,12 +229,14 @@ def _fetch_url(url, referer=None):
     except:
         return None, None
 
+
 def _fetch_url_requests(url, params=None):
     proxies = None
     if g.remote_fetch_proxy_enabled:
         proxies = {"http": g.remote_fetch_proxy_url, "https": g.remote_fetch_proxy_url}
 
     return requests.get(url, params=params, headers={'Accept-Encoding': 'gzip', 'User-Agent': g.useragent}, proxies=proxies, timeout=15)
+
 
 @memoize('media.fetch_size', time=3600)
 def _fetch_image_size(url, referer):
@@ -655,8 +653,6 @@ class MediaEmbed(object):
 class Scraper(object):
     @classmethod
     def for_url(cls, url, autoplay=False, maxwidth=600, use_youtube_scraper=False):
-        if g.disable_remote_fetch:
-            return _ThumbnailOnlyScraper(url)
         scraper = hooks.get_hook("scraper.factory").call_until_return(url=url)
         if scraper:
             return scraper
@@ -826,7 +822,7 @@ class _EmbedlyScraper(Scraper):
 
         timer = g.stats.get_timer("providers.embedly.oembed")
         timer.start()
-        content = _fetch_url_requests(self.EMBEDLY_API_URL, params).content
+        content = requests.get(self.EMBEDLY_API_URL + "?" + params).content
         timer.stop()
 
         return json.loads(content)
@@ -931,7 +927,7 @@ class _YouTubeScraper(Scraper):
         }
 
         with g.stats.get_timer("providers.youtube.oembed"):
-            content = _fetch_url_requests(self.OEMBED_ENDPOINT, params=params).content
+            content = requests.get(self.OEMBED_ENDPOINT, params=params).content
 
         return json.loads(content)
 

@@ -1182,7 +1182,7 @@ var exports = r.sponsored = {
                 displayName = 'the frontpage'
                 break;
             case 'subreddit':
-                displayName = '/' + r.config.brander_community_abbr + '/' + sr
+                displayName = '/r/' + sr
                 break;
             default:
                 displayName = collection

@@ -25,7 +25,6 @@ import pytz
 import time
 from datetime import datetime
 from pycassa.system_manager import UTF8_TYPE
-from pylons import app_globals as g
 from pylons.i18n import _
 
 from r2.lib.db import tdb_cassandra
@@ -35,7 +34,7 @@ OLD_SITEWIDE_RULES = [
     _("vote manipulation"),
     _("personal information"),
     _("sexualizing minors"),
-    _("breaking " + g.brander_site),
+    _("breaking reddit"),
 ]
 
 SITEWIDE_RULES = [

@@ -209,7 +209,6 @@ class Globals(object):
             'thumbnail_hidpi_scaling',
             'wiki_keep_recent_days',
             'wiki_max_page_length_bytes',
-            'wiki_max_config_stylesheet_length_bytes',
             'wiki_max_page_name_length',
             'wiki_max_page_separators',
             'RL_RESET_MINUTES',
@@ -226,13 +225,6 @@ class Globals(object):
             'frequency_cap_min',
             'frequency_cap_default',
             'eu_cookie_max_attempts',
-            'captcha_sol_length',
-            'captcha_font_size',
-            'banner_variants',
-            'precompute_limit',
-            'precompute_limit_hot',
-            'hot_max_links_per_subreddit',
-            'fetch_title_max_download_kb',
         ],
 
         ConfigValue.float: [
@@ -244,7 +236,6 @@ class Globals(object):
             'RL_LOGIN_IP_AVG_PER_SEC',
             'RL_SHARE_AVG_PER_SEC',
             'tracing_sample_rate',
-            'hot_period_seconds',
         ],
 
         ConfigValue.bool: [
@@ -275,26 +266,6 @@ class Globals(object):
             'RL_SITEWIDE_ENABLED',
             'RL_OAUTH_SITEWIDE_ENABLED',
             'enable_loggedout_experiments',
-            'disable_geoip_service',
-            'disable_remote_fetch',
-            'disable_newsletter',
-            'remote_fetch_proxy_enabled',
-            'gold_gilding_enabled',
-            'sub_muting_enabled',
-            'allsr_prefilter_allow_top',
-            'site_index_user_configurable',
-            'allow_top_affects_new',
-            'allow_top_false_subreddits_tab',
-            'block_user_show_comments',
-            'block_user_show_links',
-            'chat_guest_chat_enabled',
-            'chat_all',
-            'chat_front',
-            'globalban_vote_rollback',
-            'admin_enable_ip_history',
-            'admin_enable_ip_ban',
-            'admin_enable_mass_content_removal',
-            'admin_enable_password_locking',
         ],
 
         ConfigValue.tuple: [
@@ -316,7 +287,6 @@ class Globals(object):
             'multi_icons',
             'hide_subscribers_srs',
             'mcrouter_addr',
-            'permacache_domain_priority',
         ],
 
         ConfigValue.tuple_of(ConfigValue.int): [
@@ -348,10 +318,6 @@ class Globals(object):
             'events_collector_url',
             'events_collector_test_url',
             'search_provider',
-            'remote_fetch_proxy_url',
-            'brander_community',
-            'brander_community_plural',
-            'imgur_client_id',
         ],
 
         ConfigValue.choice(ONE=CL_ONE, QUORUM=CL_QUORUM): [
@@ -452,7 +418,6 @@ class Globals(object):
         ],
         ConfigValue.dict(ConfigValue.str, ConfigValue.str): [
             'employee_approved_clients',
-	    'mobile_auth_allowed_clients',
             'modmail_forwarding_email',
             'modmail_account_map',
         ],

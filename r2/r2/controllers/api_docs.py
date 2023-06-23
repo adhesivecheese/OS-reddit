@@ -43,7 +43,7 @@ section_info = {
         'title': 'flair',
     },
     'gold': {
-        'title': g.brander_site + ' gold',
+        'title': 'reddit gold',
     },
     'links_and_comments': {
         'title': 'links & comments',

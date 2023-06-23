@@ -39,7 +39,7 @@
 
       %if thing.sr_name and thing.sr_description:
         <div class="interstitial-subreddit-description">
-          <h5>${_("%s/%s") % (g.brander_community_abbr, thing.sr_name)}</h5>
+          <h5>${_("r/%s") % thing.sr_name}</h5>
           ${md(thing.sr_description)}
         </div>
       %endif
@@ -67,6 +67,6 @@
 
 <%def name="interstitial_buttons()">
   <div class="buttons">
-    <a href="/" class="c-btn c-btn-primary">${_("back to the site")}</a>
+    <a href="/" class="c-btn c-btn-primary">${_("back to Reddit")}</a>
   </div>
 </%def>

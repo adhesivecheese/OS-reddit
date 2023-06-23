@@ -102,7 +102,7 @@ def basic_query(query=None, bq=None, faceting=None, size=1000,
                 if 'error' in response_json:
                     message = response_json['error'].get('msg', 'Unknown error')
                     raise InvalidQuery(resp.status, resp.reason, message,
-                                       search_api, path, response_json)
+                                       search_api, path, reasons)
             raise SearchHTTPError(resp.status, resp.reason,
                                   search_api, path, response)
     except socket.error as e:
@@ -332,7 +332,7 @@ class LinkSearchQuery(SolrSearchQuery):
     def _restrict_recent(recent):
         now = datetime.now(g.tz)
         since = epoch_seconds(now - recent)
-        return 'timestamp:[%i TO *]' % since
+        return 'timestamp:%i..' % since
 
     @staticmethod
     def _get_sr_restriction(sr):

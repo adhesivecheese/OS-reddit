@@ -690,7 +690,7 @@ class Reddit(Templated):
                     box = SubscriptionBox(srs, multi_text=strings.mod_multi)
                 else:
                     box = SubscriptionBox(srs)
-                ps.append(SideContentBox(_('includes these %s' % g.brander_community_plural), [box]))
+                ps.append(SideContentBox(_('these subreddits'), [box]))
 
         user_banned = c.user_is_loggedin and c.site.is_banned(c.user)
 
@@ -835,7 +835,7 @@ class Reddit(Templated):
                 else:
                     more_text = _("about moderation team")
 
-                is_admin_sr = '/%s/%s' % (g.brander_community_abbr, c.site.name) == g.admin_message_acct
+                is_admin_sr = '/r/%s' % c.site.name == g.admin_message_acct
 
                 if is_admin_sr:
                     label = _('message the admins')
@@ -845,7 +845,7 @@ class Reddit(Templated):
                 wrapped_moderators = [WrappedUser(mod) for mod in moderators
                     if not mod._deleted]
                 helplink = HelpLink(
-                    "/message/compose?to=%%2F%s%%2F%s" % (g.brander_community_abbr, c.site.name),
+                    "/message/compose?to=%%2Fr%%2F%s" % c.site.name,
                     label,
                     access_required=not is_admin_sr,
                     data_attrs={
@@ -1092,6 +1092,7 @@ class RedditFooter(CachedTemplate):
                     OffsiteButton("about", "https://about.reddit.com/"),
                     NamedButton("source_code", False, dest="/code"),
                     NamedButton("advertising", False),
+                    NamedButton("jobs", False),
                 ],
                 title = _("about"),
                 type = "flat_vert",
@@ -1760,9 +1761,9 @@ class LinkInfoPage(Reddit):
         Reddit.__init__(self, title = title, short_description=short_description, robots=robots, *a, **kw)
 
     def _build_og_data(self, link_title, meta_description):
-        sr_fragment = "/" + g.brander_community_abbr + "/" + c.site.name if not c.default_sr else get_domain()
+        sr_fragment = "/r/" + c.site.name if not c.default_sr else get_domain()
         data = {
-            "site_name": g.brander_site,
+            "site_name": "reddit",
             "title": u"%s • %s" % (link_title, sr_fragment),
             "description": self._build_og_description(meta_description),
             "ttl": "600",  # re-fetch frequently to update vote/comment count
@@ -1848,7 +1849,7 @@ class LinkInfoPage(Reddit):
         # at the end, we'd like to always show the whole subreddit name, so
         # let's truncate the title while still ensuring the entire thing is
         # under the limit.
-        sr_fragment = u" • /" + g.brander_community_abbr + "/" + c.site.name if not c.default_sr else get_domain()
+        sr_fragment = u" • /r/" + c.site.name if not c.default_sr else get_domain()
         max_link_title_length = 70 - len(sr_fragment)
 
         return {
@@ -2501,15 +2502,15 @@ class ProfileBar(Templated):
 
             if not self.viewing_self:
                 self.goldlink = "/gold?goldtype=gift&recipient=" + user.name
-                self.giftmsg = _("give gold to %(user)s to show "
+                self.giftmsg = _("give reddit gold to %(user)s to show "
                                  "your appreciation") % {'user': user.name}
             elif not user.gold:
                 self.goldlink = "/gold/about"
-                self.giftmsg = _("get extra features and help support the site"
-                                 " with a gold subscription")
+                self.giftmsg = _("get extra features and help support reddit "
+                                 "with a reddit gold subscription")
             elif gold_days_left < 7 and not user.gold_will_autorenew:
                 self.goldlink = "/gold/about"
-                self.giftmsg = _("renew your gold")
+                self.giftmsg = _("renew your reddit gold")
 
             if not self.viewing_self:
                 self.is_friend = user._id in c.user.friends
@@ -2519,14 +2520,14 @@ class ProfileBar(Templated):
 
 
 class ServerSecondsBar(Templated):
-    my_message = _("you have helped pay for *%(time)s* of  server time.")
-    their_message = _("/u/%(user)s has helped pay for *%%(time)s* of server "
+    my_message = _("you have helped pay for *%(time)s* of reddit server time.")
+    their_message = _("/u/%(user)s has helped pay for *%%(time)s* of reddit server "
                       "time.")
 
     my_gift_message = _("gifts on your behalf have helped pay for *%(time)s* of "
-                        "server time.")
+                        "reddit server time.")
     their_gift_message = _("gifts on behalf of /u/%(user)s have helped pay for "
-                           "*%%(time)s* of server time.")
+                           "*%%(time)s* of reddit server time.")
 
     def make_message(self, seconds, my_message, their_message):
         if not seconds:
@@ -2605,7 +2606,7 @@ class WelcomeBar(InfoBar):
         if messages:
             message = random.choice(messages).split(" / ")
         else:
-            message = (_("This site is a platform for internet communities"),
+            message = (_("reddit is a platform for internet communities"),
                        _("where your votes shape what the world is talking about."))
         InfoBar.__init__(self, message=message)
 
@@ -2917,10 +2918,9 @@ class MultiInfoBar(Templated):
 
         explore_sr = g.live_config["listing_chooser_explore_sr"]
         if explore_sr:
-            self.share_url = "/%(brander_community_abbr)s/%(sr)s/submit?url=%(url)s" % {
+            self.share_url = "/r/%(sr)s/submit?url=%(url)s" % {
                 "sr": explore_sr,
                 "url": g.origin + self.multi.path,
-                "brander_community_abbr": g.brander_community_abbr,
             }
         else:
             self.share_url = None
@@ -2939,19 +2939,19 @@ class SubscriptionBox(Templated):
 
         # Construct MultiReddit path
         if multi_text:
-            self.multi_path = '/' + g.brander_community_abbr + '/' + '+'.join([sr.name for sr in srs])
+            self.multi_path = '/r/' + '+'.join([sr.name for sr in srs])
 
-        if len(srs) > g.sr_limit and c.user_is_loggedin:
+        if len(srs) > Subreddit.sr_limit and c.user_is_loggedin:
             if not c.user.gold:
                 self.goldlink = "/gold"
-                self.goldmsg = _("raise it to %s") % g.gold_limit
+                self.goldmsg = _("raise it to %s") % Subreddit.gold_limit
                 self.prelink = ["/wiki/faq#wiki_how_many_subreddits_can_i_subscribe_to.3F",
-                                _("%s visible") % g.sr_limit]
+                                _("%s visible") % Subreddit.sr_limit]
             else:
                 self.goldlink = "/gold/about"
-                extra = min(len(srs) - g.sr_limit,
-                            g.gold_limit - g.sr_limit)
-                visible = min(len(srs), g.gold_limit)
+                extra = min(len(srs) - Subreddit.sr_limit,
+                            Subreddit.gold_limit - Subreddit.sr_limit)
+                visible = min(len(srs), Subreddit.gold_limit)
                 bonus = {"bonus": extra}
                 self.goldmsg = _("%(bonus)s bonus subreddits") % bonus
                 self.prelink = ["/wiki/faq#wiki_how_many_subreddits_can_i_subscribe_to.3F",
@@ -2984,7 +2984,7 @@ class AllInfoBar(Templated):
         self.css_class = None
         if isinstance(site, AllMinus) and c.user.gold:
             self.description = (strings.r_all_minus_description + "\n\n" +
-                " ".join("/" + g.brander_community_abbr + "/" + sr.name for sr in site.exclude_srs))
+                " ".join("/r/" + sr.name for sr in site.exclude_srs))
             self.css_class = "gold-accent"
         else:
             self.description = strings.r_all_description
@@ -2992,7 +2992,7 @@ class AllInfoBar(Templated):
             srs = Subreddit._byID(
                 sr_ids, data=True, return_dict=False, stale=True)
             if srs:
-                self.allminus_url = '/' + g.brander_community_abbr + '/all-' + '-'.join([sr.name for sr in srs])
+                self.allminus_url = '/r/all-' + '-'.join([sr.name for sr in srs])
 
         self.gilding_listing = False
         if request.path.startswith("/comments/gilded"):
@@ -3381,7 +3381,7 @@ class ReportForm(CachedTemplate):
                 self.rules.append(rule["short_name"])
             if self.rules:
                 self.system_rules = SITEWIDE_RULES
-                self.rules_page_link = "/%s/%s/about/rules" % (g.brander_community_abbr, subreddit.name)
+                self.rules_page_link = "/r/%s/about/rules" % subreddit.name
         if not self.rules:
             self.rules = OLD_SITEWIDE_RULES
             self.rules_page_link = "/help/contentpolicy"
@@ -4558,11 +4558,10 @@ class PromoteLinkEdit(PromoteLinkBase):
         self.inventory = {}
         message = _("Create your ad on this page. Have questions? "
                     "Check out the [Help Center](%(help_center)s) "
-                    "or [/%(brander_community_abbr)s/selfserve](%(selfserve)s).")
+                    "or [/r/selfserve](%(selfserve)s).")
         message %= {
             'help_center': 'https://reddit.zendesk.com/hc/en-us/categories/200352595-Advertising',
-            'selfserve': 'https://www.reddit.com/r/selfserve',
-            'brander_community_abbr': g.brander_community_abbr,
+            'selfserve': 'https://www.reddit.com/r/selfserve'
         }
         self.infobar = RedditInfoBar(message=message)
         self.price_dict = PromotionPrices.get_price_dict(self.author)

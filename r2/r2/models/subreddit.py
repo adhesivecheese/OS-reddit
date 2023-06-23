@@ -132,7 +132,7 @@ class BaseSite(object):
 
     @property
     def path(self):
-        return "/" + g.brander_community_abbr + "/%s/" % self.name
+        return "/r/%s/" % self.name
 
     @property
     def user_path(self):
@@ -394,7 +394,7 @@ class Subreddit(Thing, Printable, BaseSite):
         if not name:
             return False
 
-        if allow_reddit_dot_com and name.lower() == g.domain:
+        if allow_reddit_dot_com and name.lower() == "reddit.com":
             return True
 
         valid = bool(subreddit_rx.match(name))
@@ -619,7 +619,7 @@ class Subreddit(Thing, Printable, BaseSite):
 
     @property
     def _related_multipath(self):
-        return '/%s/%s/m/related' % (g.brander_community_abbr, self.name.lower())
+        return '/r/%s/m/related' % self.name.lower()
 
     @property
     def related_subreddits(self):
@@ -1671,11 +1671,9 @@ class FriendsSR(FakeSubreddit):
 
 
 class AllSR(FakeSubreddit):
-    name = g.all_name
-    title = g.all_title
-    path = g.all_path
-    header = g.default_header_url
-    header_title = g.all_header_title
+    name = 'all'
+    title = 'all subreddits'
+    path = '/r/all'
 
     def keep_for_rising(self, sr_id):
         return True
@@ -1735,7 +1733,7 @@ class AllMinus(AllSR):
 
     @property
     def path(self):
-        return '/%s/all-' % g.brander_community_abbr + '-'.join(sr.name for sr in self.exclude_srs)
+        return '/r/all-' + '-'.join(sr.name for sr in self.exclude_srs)
 
     def get_links(self, sort, time):
         from r2.models import Link
@@ -1775,7 +1773,7 @@ class Filtered(object):
 
 
 class AllFiltered(Filtered, AllMinus):
-    unfiltered_path = '/%s/all' % g.brander_community_abbr
+    unfiltered_path = '/r/all'
     filtername = 'all'
 
     def __init__(self):
@@ -1784,11 +1782,10 @@ class AllFiltered(Filtered, AllMinus):
 
 
 class _DefaultSR(FakeSubreddit):
-    analytics_name = g.front_name
-    # notice the space before site.com
-    # name = ' ' + g.domain
-    name = g.front_name
-    path = g.front_path
+    analytics_name = 'frontpage'
+    #notice the space before reddit.com
+    name = ' reddit.com'
+    path = '/'
     header = g.default_header_url
 
     def _get_sr_ids(self):
@@ -2290,11 +2287,10 @@ class LabeledMulti(tdb_cassandra.Thing, MultiReddit):
                 'multiname': self.name,
             }
         if isinstance(self.owner, Subreddit):
-            return '/%(brander_community_abbr)s/%(srname)s/%(kind)s/%(multiname)s' % {
+            return '/r/%(srname)s/%(kind)s/%(multiname)s' % {
                 'srname': self.owner.name,
                 'kind': self.kind,
                 'multiname': self.name,
-                'brander_community_abbr': g.brander_community_abbr,
             }
 
     @property
@@ -2431,7 +2427,7 @@ class LabeledMulti(tdb_cassandra.Thing, MultiReddit):
         """Generate user multi path from display name."""
         slug = unicode_title_to_ascii(display_name)
         if isinstance(owner, Subreddit):
-            prefix = "/" + g.brander_community_abbr + "/" + owner.name + "/" + type_ + "/"
+            prefix = "/r/" + owner.name + "/" + type_ + "/"
         else:
             prefix = "/user/" + owner.name + "/" + type_ + "/"
         new_path = prefix + slug
@@ -2577,7 +2573,7 @@ class ModSR(ModContribSR):
     name  = "subreddits you moderate"
     title = "subreddits you moderate"
     query_param = "moderator"
-    path = "/%s/mod" % g.brander_community_abbr
+    path = "/r/mod"
 
     def is_moderator(self, user):
         return FakeSRMember(ModeratorPermissionSet)
@@ -2607,11 +2603,11 @@ class ModMinus(ModSR):
 
     @property
     def path(self):
-        return '/' + g.brander_community_abbr + '/mod-' + '-'.join(sr.name for sr in self.exclude_srs)
+        return '/r/mod-' + '-'.join(sr.name for sr in self.exclude_srs)
 
 
 class ModFiltered(Filtered, ModMinus):
-    unfiltered_path = '/%s/mod' % g.brander_community_abbr
+    unfiltered_path = '/r/mod'
     filtername = 'mod'
 
     def __init__(self):
@@ -2622,7 +2618,7 @@ class ContribSR(ModContribSR):
     name  = "contrib"
     title = "communities you're approved on"
     query_param = "contributor"
-    path = "/%s/contrib" % g.brander_community_abbr
+    path = "/r/contrib"
 
 
 class DomainSR(FakeSubreddit):
@@ -2919,16 +2915,15 @@ class MutedAccountsBySubreddit(object):
 
         #if the user has interacted with the subreddit before, message them
         if user.has_interacted_with(sr):
-            subject = "You have been muted from %(brander_community_abbr)s/%(subredditname)s"
-            subject %= dict(brander_community_abbr=g.brander_community_abbr, subredditname=sr.name)
+            subject = "You have been muted from r/%(subredditname)s"
+            subject %= dict(subredditname=sr.name)
             message = ("You have been [temporarily muted](%(muting_link)s) "
-                "from %(brander_community_abbr)s/%(subredditname)s. You will not be able to message "
-                "the moderators of %(brander_community_abbr)s/%(subredditname)s for %(num_hours)s hours.")
+                "from r/%(subredditname)s. You will not be able to message "
+                "the moderators of r/%(subredditname)s for %(num_hours)s hours.")
             message %= dict(
                 muting_link="https://reddit.zendesk.com/hc/en-us/articles/205269739",
                 subredditname=sr.name,
                 num_hours=NUM_HOURS,
-                brander_community_abbr=g.brander_community_abbr,
             )
             if parent_message:
                 subject = parent_message.subject

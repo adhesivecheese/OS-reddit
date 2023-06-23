@@ -107,7 +107,7 @@ ${thing.formtabs_menu}
 
 <div class="spacer">
     <div class="submit_text roundfield">
-        <h1>${_wsf('submitting to %(sr)s', sr=unsafe('/' + g.brander_community_abbr + '/<span class="sr"></span>'))}</h1>
+        <h1>${_wsf('submitting to %(sr)s', sr=unsafe('/r/<span class="sr"></span>'))}</h1>
         <span class="content md-container">
             %if thing.default_sr and thing.default_sr.submit_text:
                 ${unsafe(safemarkdown(thing.default_sr.submit_text))}
@@ -130,7 +130,7 @@ ${thing.captcha}
 </div>
 
 <div class="roundfield info-notice">
-  ${text_with_links(_("please be mindful of the site's %(content_policy)s and practice %(good_reddiquette)s."),
+  ${text_with_links(_("please be mindful of reddit's %(content_policy)s and practice %(good_reddiquette)s."),
       content_policy=dict(
         link_text=_("content policy"),
         path="/help/contentpolicy",

@@ -112,7 +112,7 @@ class TextGenerator(object):
 
 
 def fetch_listing(path, limit=1000, batch_size=100):
-    """Fetch a listing from reddit.com."""
+    """Fetch a reddit listing from reddit.com."""
 
     session = requests.Session()
     session.headers.update({

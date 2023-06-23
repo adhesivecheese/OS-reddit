@@ -273,7 +273,7 @@ class SubredditListingController(ListingController):
     private_referrer = False
 
     def _build_og_title(self, max_length=256):
-        sr_fragment = "/" + g.brander_community_abbr + "/" + c.site.name
+        sr_fragment = "/r/" + c.site.name
         title = c.site.title.strip()
         if not title:
             return trunc_string(sr_fragment, max_length)
@@ -327,7 +327,7 @@ class SubredditListingController(ListingController):
             if not c.user_is_loggedin:
                 # This data is only for scrapers, which shouldn't be logged in.
                 twitter_card = {
-                    "site": g.brander_site,
+                    "site": "reddit",
                     "card": "summary",
                     "title": self._build_og_title(max_length=70),
                     # Twitter will fall back to any defined OpenGraph
@@ -339,7 +339,7 @@ class SubredditListingController(ListingController):
 
                 render_params.update({
                     "og_data": {
-                        "site_name": g.brander_site,
+                        "site_name": "reddit",
                         "title": self._build_og_title(),
                         "image": static('icon.png', absolute=True),
                         "description": self._build_og_description(),
@@ -1459,7 +1459,7 @@ class RedditsController(ListingController):
     extra_page_classes = ListingController.extra_page_classes + ['subreddits-page']
 
     def title(self):
-        return _('%s: %s %s' % (g.brander_site, self.where, g.brander_community_plural))
+        return _('subreddits')
 
     def keep_fn(self):
         base_keep_fn = ListingController.keep_fn(self)
@@ -1602,7 +1602,7 @@ class MyredditsController(ListingController):
                         default = 'subscriber', type = "flatlist")]
 
     def title(self):
-        return _('%s: my %s: %s' % (g.brander_site, g.brander_community_plural, self.where))
+        return _('subreddits: ') + self.where
 
     def builder_wrapper(self, thing):
         w = ListingController.builder_wrapper(thing)
@@ -1639,11 +1639,7 @@ class MyredditsController(ListingController):
         if self.where == 'subscriber' and num_subscriptions == 0:
             message = strings.sr_messages['empty']
         else:
-            message = strings.sr_messages.get(self.where) % {
-                    'community_plural': g.brander_community_plural,
-                    'unsubscribe_link': '/prefs#subscriptions',
-                    'prefs_link': '/prefs',
-                }
+            message = strings.sr_messages.get(self.where)
 
         stack = PaneStack()
 
@@ -1797,10 +1793,9 @@ class UserListListingController(ListingController):
         # having this suffix, to make similar tabs on different subreddits
         # distinct.
         if self.where == 'moderators':
-            return '%(section)s - /%(brander_community_abbr)s/%(subreddit)s' % {
+            return '%(section)s - /r/%(subreddit)s' % {
                 'section': section_title,
                 'subreddit': c.site.name,
-                'brander_community_abbr': g.brander_community_abbr,
             }
 
         return section_title

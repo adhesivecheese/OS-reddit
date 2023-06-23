@@ -559,10 +559,10 @@
             %if not (thing.thing.user_is_moderator or c.user_is_admin):
               <li>
                 %if getattr(thing.thing, "sr_blocked", False):
-                  ${ynbutton(_("unblock %s" % g.brander_community), _("unblocked"), "unblock_subreddit",
+                  ${ynbutton(_("unblock subreddit"), _("unblocked"), "unblock_subreddit",
                       access_required=False, event_action="unblock_subreddit")}
                 %else:
-                  ${ynbutton(_("block %s" % g.brander_community), _("blocked"), "block", "hide_thing",
+                  ${ynbutton(_("block subreddit"), _("blocked"), "block", "hide_thing",
                       access_required=False, event_action="block_subreddit")}
                 %endif
               </li>

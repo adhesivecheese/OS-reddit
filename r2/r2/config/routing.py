@@ -69,7 +69,8 @@ def make_map(config):
     mc('/adminoff', controller='forms', action='adminoff')
     mc('/submit', controller='front', action='submit')
 
-    ABOUT_BASE = "https://about.%s/" % config['pylons.app_globals'].domain
+    # redirect old urls to the new
+    ABOUT_BASE = "https://about.reddit.com/"
     mc('/about', controller='redirect', action='redirect', dest=ABOUT_BASE, 
        conditions={'function':not_in_sr})
     mc('/about/values', controller='redirect', action='redirect', dest=ABOUT_BASE)
@@ -135,7 +136,7 @@ def make_map(config):
     mc('/awards/received', controller='front', action='received_award')
 
     mc('/i18n', controller='redirect', action='redirect',
-       dest=config['pylons.app_globals'].https_endpoint + '/' + config['pylons.app_globals'].brander_community_abbr + '/i18n')
+       dest='https://www.reddit.com/r/i18n')
     mc('/feedback', controller='redirect', action='redirect',
        dest='/contact')
     mc('/contact', controller='frontunstyled', action='contact_us')
@@ -144,9 +145,8 @@ def make_map(config):
     mc('/admin/awards/:awardcn/:action', controller='awards',
        requirements=dict(action="give|winners"))
 
-    if config['pylons.app_globals'].gold_gilding_enabled:
-      mc('/admin/creddits', controller='admintool', action='creddits')
-      mc('/admin/gold', controller='admintool', action='gold')
+    mc('/admin/creddits', controller='admintool', action='creddits')
+    mc('/admin/gold', controller='admintool', action='gold')
 
     mc('/user/:username/about', controller='user', action='about',
        where='overview')
@@ -301,24 +301,21 @@ def make_map(config):
     mc('/thanks', controller='forms', action="claim", secret='')
     mc('/thanks/:secret', controller='forms', action="claim")
 
-    if config['pylons.app_globals'].gold_gilding_enabled:
-      mc('/gold', controller='forms', action="gold", is_payment=False)
-      mc('/gold/payment', controller='forms', action="gold", is_payment=True)
-      mc('/gold/creditgild/:passthrough', controller='forms', action='creditgild')
-      mc('/gold/thanks', controller='front', action='goldthanks')
-      mc('/gold/subscription', controller='forms', action='subscription')
-      mc('/gilding', controller='front', action='gilding')
-      mc('/creddits', controller='redirect', action='redirect',
-         dest='/gold?goldtype=creddits')
+    mc('/gold', controller='forms', action="gold", is_payment=False)
+    mc('/gold/payment', controller='forms', action="gold", is_payment=True)
+    mc('/gold/creditgild/:passthrough', controller='forms', action='creditgild')
+    mc('/gold/thanks', controller='front', action='goldthanks')
+    mc('/gold/subscription', controller='forms', action='subscription')
+    mc('/gilding', controller='front', action='gilding')
+    mc('/creddits', controller='redirect', action='redirect', 
+       dest='/gold?goldtype=creddits')
 
     mc('/password', controller='forms', action="password")
     mc('/random', controller='front', action="random")
     mc('/:action', controller='embed',
        requirements=dict(action="blog"))
-
-    if config['pylons.app_globals'].gold_gilding_enabled:
-      mc('/help/gold', controller='redirect', action='redirect',
-        dest='/gold/about')
+    mc('/help/gold', controller='redirect', action='redirect',
+       dest='/gold/about')
 
     mc('/help/:page', controller='policies', action='policy_page',
        conditions={'function':not_in_sr},
@@ -376,22 +373,20 @@ def make_map(config):
 
     mc('/api', controller='redirect', action='redirect', dest='/dev/api')
     mc('/api/distinguish/:how', controller='api', action="distinguish")
-
-    if config['pylons.app_globals'].gold_gilding_enabled:
-      mc('/api/spendcreddits', controller='ipn', action="spendcreddits")
-      mc('/api/stripecharge/gold', controller='stripe', action='goldcharge')
-      mc('/api/modify_subscription', controller='stripe',
-         action='modify_subscription')
-      mc('/api/cancel_subscription', controller='stripe',
-         action='cancel_subscription')
-      mc('/api/stripewebhook/gold/:secret', controller='stripe',
-         action='goldwebhook')
-      mc('/api/coinbasewebhook/gold/:secret', controller='coinbase',
-         action='goldwebhook')
-      mc('/api/rgwebhook/gold/:secret', controller='redditgifts',
-         action='goldwebhook')
-      mc('/api/ipn/:secret', controller='ipn', action='ipn')
-      mc('/ipn/:secret', controller='ipn', action='ipn')
+    mc('/api/spendcreddits', controller='ipn', action="spendcreddits")
+    mc('/api/stripecharge/gold', controller='stripe', action='goldcharge')
+    mc('/api/modify_subscription', controller='stripe',
+       action='modify_subscription')
+    mc('/api/cancel_subscription', controller='stripe',
+       action='cancel_subscription')
+    mc('/api/stripewebhook/gold/:secret', controller='stripe',
+       action='goldwebhook')
+    mc('/api/coinbasewebhook/gold/:secret', controller='coinbase',
+       action='goldwebhook')
+    mc('/api/rgwebhook/gold/:secret', controller='redditgifts',
+       action='goldwebhook')
+    mc('/api/ipn/:secret', controller='ipn', action='ipn')
+    mc('/ipn/:secret', controller='ipn', action='ipn')
     mc('/api/:action/:url_user', controller='api',
        requirements=dict(action="login|register"))
     mc('/api/gadget/click/:ids', controller='api', action='gadget',
@@ -428,10 +423,10 @@ def make_map(config):
     mc("/api/multi/user/:username", controller="multiapi", action="list_multis")
     mc("/api/multi/copy", controller="multiapi", action="multi_copy")
     mc("/api/multi/rename", controller="multiapi", action="multi_rename")
-    mc("/api/multi/*multipath/" + config['pylons.app_globals'].brander_community_abbr + "/:srname", controller="multiapi", action="multi_subreddit")
+    mc("/api/multi/*multipath/r/:srname", controller="multiapi", action="multi_subreddit")
     mc("/api/multi/*multipath/description", controller="multiapi", action="multi_description")
     mc("/api/multi/*multipath", controller="multiapi", action="multi")
-    mc("/api/filter/*multipath/" + config['pylons.app_globals'].brander_community_abbr + "/:srname", controller="multiapi", action="multi_subreddit")
+    mc("/api/filter/*multipath/r/:srname", controller="multiapi", action="multi_subreddit")
     mc("/api/filter/*multipath", controller="multiapi", action="multi")
 
     mc("/api/v1/:action", controller="oauth2frontend",
@@ -451,9 +446,8 @@ def make_map(config):
     mc("/api/v1/me/:action", controller="apiv1user")
     mc("/api/v1/me/:action/:username", controller="apiv1user")
 
-    if config['pylons.app_globals'].gold_gilding_enabled:
-      mc("/api/v1/gold/gild/:fullname", controller="apiv1gold", action="gild")
-      mc("/api/v1/gold/give/:username", controller="apiv1gold", action="give")
+    mc("/api/v1/gold/gild/:fullname", controller="apiv1gold", action="gild")
+    mc("/api/v1/gold/give/:username", controller="apiv1gold", action="give")
 
     mc('/dev', controller='redirect', action='redirect', dest='/dev/api')
     mc('/dev/api', controller='apidocs', action='docs')

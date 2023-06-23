@@ -28,7 +28,7 @@
           r.config.events_collector_secret,
           postData,
           r.config.events_collector_url,
-          r.config.cur_domain,
+          'reddit.com',
           calculateHash
         );
       }

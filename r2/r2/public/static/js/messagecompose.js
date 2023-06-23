@@ -15,7 +15,7 @@
 
 
   /** This looks like a subreddit name. @const */
-  var SUBREDDIT = new RegExp('^(?:#|\/?' + r.config.brander_community_abbr + '\/)(.*)');
+  var SUBREDDIT = /^(?:#|\/?r\/)(.*)/;
 
 
   var mc = r.messagecompose = {
@@ -124,7 +124,7 @@
      *  }>}
      */
     loadSubredditRules: function(sr) {
-      var url = '/' + r.config.brander_community_abbr + '/' + sr + '/about/rules.json';
+      var url = '/r/' + sr + '/about/rules.json';
 
       // If we're already loading this subreddit, continue, otherwise, abort
       // the old one and start over.
@@ -199,7 +199,7 @@
           mc.dom.$rule.val(mc.dom.$subject.val());
         } else if (/\S/.test(mc.dom.$subject.val())
             || _(mc.dom.$subject).contains(document.activeElement)
-            || rulesJson['sr_name'] !== r.config.cur_domain) {
+            || rulesJson['sr_name'] !== 'reddit.com') {
           // Select Other if the user has entered anything in the custom
           // subject OR if the keyboard focus is already on the subject OR if
           // the subreddit is not reddit.com.

@@ -592,7 +592,7 @@ def add_attr(attrs, kind, label=None, link=None, cssclass=None, symbol=None):
         priority = 4
         cssclass = 'admin'
         if not label:
-            label = _('site admin, speaking officially')
+            label = _('reddit admin, speaking officially')
     elif kind in ('X', '@'):
         priority = 5
         cssclass = 'gray'
@@ -629,9 +629,9 @@ def add_admin_distinguish(distinguish_attribs_list):
 
 
 def add_moderator_distinguish(distinguish_attribs_list, subreddit):
-    link = '/%s/%s/about/moderators' % (g.brander_community_abbr, subreddit.name)
-    label = _('moderator of /%(brander_community_abbr)s/%(reddit)s, speaking officially')
-    label %= {'reddit': subreddit.name, 'brander_community_abbr': g.brander_community_abbr}
+    link = '/r/%s/about/moderators' % subreddit.name
+    label = _('moderator of /r/%(reddit)s, speaking officially')
+    label %= {'reddit': subreddit.name}
     add_attr(distinguish_attribs_list, 'M', label=label, link=link)
 
 
@@ -675,7 +675,7 @@ def search_url(query, subreddit, restrict_sr="off", sort=None, recent=None, ref=
         url_query["sort"] = sort
     if recent:
         url_query["t"] = recent
-    path = "/%s/%s/search?" % (g.brander_community_abbr, subreddit) if subreddit else "/search?"
+    path = "/r/%s/search?" % subreddit if subreddit else "/search?"
     path += urllib.urlencode(url_query)
     return path
 
